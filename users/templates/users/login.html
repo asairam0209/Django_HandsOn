@@ -1,0 +1,16 @@
+<form  method="post">
+    {% if messages %}
+      
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+        {{message}}
+      </div>
+      {% endfor %}
+        
+    {% endif %}
+    {% block body %}
+    {% endblock %}
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Login</button>
+</form>

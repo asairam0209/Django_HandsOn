@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Product Grid</title>
+    <style>
+        .card-img-top {
+            height: 200px;
+            object-fit: contain;
+        }
+        .card {
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    {% for product in products %}
+        {% if forloop.counter0|divisibleby:3 %} <div class="row"> {% endif %}
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 shadow">
+                <img src="{{ product.image }}" 
+                     class="card-img-top img-fluid" 
+                     alt="{{ product.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.title }}</h5>
+                    <p class="card-text text-success">${{ product.price }}</p>
+                </div>
+            </div>
+        </div>
+        
+        {% if forloop.counter|divisibleby:3 or forloop.last %} </div> {% endif %}
+    {% endfor %}
+</div>
+
+</body>
+</html>

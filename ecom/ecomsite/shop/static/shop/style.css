@@ -1,0 +1,10 @@
+.card {
+    transition: transform 0.3s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card-text{
+    color: green;
+    font-weight: 800;
+}

@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'shop/detail_style.css' %}" />
+    <title>{{product.title}}</title>
+    {% comment %} <style>
+        .product-image {
+            max-height: 600px;
+            object-fit: contain;
+            padding: 20px;
+        }
+        .details-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .price-section {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .discount-price {
+            text-decoration: line-through;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+    </style> {% endcomment %}
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Image Column -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <img src="{{product.image}}" 
+                         class="card-img-top product-image img-fluid p-3" 
+                         alt="{{product.title}}">
+                </div>
+            </div>
+            
+            <!-- Details Column -->
+            <div class="col-md-6">
+                <div class="details-card h-100">
+                    <h1 class="mb-4 fw-bold">{{product.title}}</h1>
+                    
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        {% if product.discount_price %}
+                            <span class="price-section">${{product.discount_price}}</span>
+                            <span class="discount-price">${{product.price}}</span>
+                            <span class="badge bg-danger">Sale</span>
+                        {% else %}
+                            <span class="price-section">${{product.price}}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="mb-3">Description</h4>
+                        <p class="lead text-muted">{{product.description}}</p>
+                    </div>
+                    
+                    <div class="d-grid gap-3 d-md-flex">
+                        <button class="btn btn-primary btn-lg px-5">
+                            Add to Cart
+                        </button>
+                        <button class="btn btn-outline-secondary btn-lg px-5">
+                            Continue Shopping
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

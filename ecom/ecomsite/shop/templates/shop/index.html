@@ -14,8 +14,7 @@
   </head>
   <body>
     <div class="container py-5">
-
-        {% comment %} Search Bar {% endcomment %}
+      {% comment %} Search Bar {% endcomment %}
       <div class="row">
         <div class="col-md-12">
           <form class="card card-sm">
@@ -26,7 +25,7 @@
                   name="item_search"
                   placeholder="Search for products"
                   class="form-control form-control-borderless"
-                >
+                />
               </div>
               <div class="col-auto">
                 <button class="btn btn-success" type="Submit">Search</button>
@@ -42,16 +41,22 @@
           <!-- Fixed column class -->
           <div class="card h-100 shadow">
             <!-- Fixed image with proper sizing -->
-            <img
-              src="{{ product.image }}"
-              class="card-img-top img-fluid"
-              alt="{{ product.title }}"
-              style="height: 250px; object-fit: contain"
-            />
+            
+              <img
+                src="{{ product.image }}"
+                class="card-img-top img-fluid"
+                alt="{{ product.title }}"
+                style="height: 250px; object-fit: contain"
+              />
+           
 
             <div class="card-body">
               <h5 class="card-title">{{ product.title }}</h5>
               <p class="card-text fs-5">${{ product.price }}</p>
+
+              <a href="{% url 'detail' product.id %}", class ="btn btn-warning ">View</a>
+
+              <button class="btn btn-warning">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -61,25 +66,31 @@
       {% comment %} For Pagination {% endcomment %}
       <div class="row">
         <div class="col-md-3 offset-md-4">
-            <ul class="pagination">
-                
-                {% if products.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a>
-                    </li>
-                {% endif %}
+          <ul class="pagination">
+            {% if products.has_previous %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ products.previous_page_number }}"
+                >Previous</a
+              >
+            </li>
+            {% endif %}
 
-                <li class="page-item active">
-                    <a class="page-link" href="?page={{ products.number }}">{{products.number}}</a>
-                </li>
-                
-                {% if products.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ products.next_page_number }}">Next</a>
-                </li>    
-                {% endif %}
-                
-            </ul>
+            <li class="page-item active">
+              <a class="page-link" href="?page={{ products.number }}"
+                >{{products.number}}</a
+              >
+            </li>
+
+            {% if products.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ products.next_page_number }}"
+                >Next</a
+              >
+            </li>
+            {% endif %}
+          </ul>
         </div>
       </div>
     </div>

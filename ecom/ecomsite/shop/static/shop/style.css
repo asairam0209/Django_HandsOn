@@ -8,3 +8,18 @@
     color: green;
     font-weight: 800;
 }
+
+/* Cart popover styling */
+.popover {
+    min-width: 300px !important;
+    max-width: 400px !important;
+}
+
+.cart-items-list {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.popover {
+    pointer-events: auto !important;
+}

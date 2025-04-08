@@ -47,18 +47,16 @@
                   </li>
                   <li class="nav-item">
                     {% comment %} changing the link to popoveer {% endcomment %}
-                    <button
-                      type="button"
-                      id="items"
-                      class="btn btn-secondary"
-                      data-bs-toggle="popover"
-                      data-bs-placement="bottom"
-                      data-bs-content="Bottom popover"
-                      title="Cart"
-                      data-bs-content="Your cart is empty"
-                    >
-                      Cart(0)
-                    </button>
+                    <li class="nav-item">
+                      <button type="button" 
+                              id="cart" 
+                              class="btn btn-secondary" 
+                              data-bs-toggle="popover" 
+                              data-bs-placement="bottom">
+                          Cart(0)
+                          
+                      </button>
+                  </li>
                   </li>
                   <li class="nav-item">
                     <a
@@ -111,7 +109,9 @@
             />
 
             <div class="card-body">
-              <h5 class="card-title">{{ product.title }}</h5>
+              <h5 id="name-{{product.id}}" class="card-title">
+                {{ product.title }}
+              </h5>
               <p class="card-text fs-5">${{ product.price }}</p>
 
               <a href="{% url 'detail' product.id %}" , class="btn btn-warning"

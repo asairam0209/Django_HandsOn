@@ -1,0 +1,18 @@
+[
+    {
+        "model":"TicketManager.RoleModel",
+        "pk" : 1,
+        "fields" : {
+            "name": "ADMIN",
+            "desc" : "Administrator role with functional access."
+        }
+    },
+    {
+        "model":"TicketManager.RoleModel",
+        "pk" : 2,
+        "fields" : {
+            "name": "CLIENT",
+            "desc" : "user role with normal access."
+        }
+    }
+]

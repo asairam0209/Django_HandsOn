@@ -57,7 +57,6 @@ class TicketManagerSerializer(serializers.ModelSerializer):
 
         read_only_fields = ['createdAt']
 
-        def create(self, validated_data):
-            user = self.contex['request'].user
-
-            return TicketManager.objects.create(**validated_data, clientId=user, role=user.role)
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return TicketManager.objects.create(**validated_data, clientId=user, role=user.role)

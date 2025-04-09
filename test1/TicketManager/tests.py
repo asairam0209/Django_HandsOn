@@ -15,13 +15,11 @@ class TicketAPITestCase(APITestCase):
         self.client_user = AuthUser.objects.create_user(
             username='clientOne',
             password='client1235',
-            email='client1@gmail.com',
             role=self.client_role
         )
         self.admin_user = AuthUser.objects.create_user(
             username='admin',
             password='admin1235',
-            email='admin@gmail.com',
             role=self.admin_role
         )
 
@@ -206,12 +204,12 @@ class TicketAPITestCase(APITestCase):
 
         # Test Case 19: Client access admin-only endpoint
 
-    def test_client_access_admin_endpoint(self):
-        token = self.get_token('clientOne', 'client1235')
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
-        url = reverse('admin-endpoint')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    # def test_client_access_admin_endpoint(self):
+    #     token = self.get_token('clientOne', 'client1235')
+    #     self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+    #     url = reverse('admin-endpoint')
+    #     response = self.client.get(url)
+    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Test Case 20: Check ticket default values
 

@@ -8,7 +8,7 @@ class SingleObjPermission(permissions.BasePermission):
         elif request.method == "DELETE":
             if request.user == obj.clientId:
                 return True
-            elif request.user.role == 'ADMIN':
+            elif request.user.role.name == 'ADMIN':
                 return True
             return False
         if request.user == obj.clientId:

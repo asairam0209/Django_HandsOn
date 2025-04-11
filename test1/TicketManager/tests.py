@@ -2,16 +2,22 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from .models import RoleModel, AuthUser, TicketManager
-from django.contrib.auth.hashers import make_password
 
 class TicketAPITestCase(APITestCase):
     def setUp(self):
+        # Create roles
         self.client_role = RoleModel.objects.create(name='CLIENT')
         self.admin_role = RoleModel.objects.create(name='ADMIN')
 
-        self.client_user = AuthUser.objects.create_user(
+        # Create users - 2 clients and 1 admin
+        self.client_user1 = AuthUser.objects.create_user(
             username='clientOne',
             password='client1235',
+            role=self.client_role
+        )
+        self.client_user2 = AuthUser.objects.create_user(
+            username='clientTwo',
+            password='client4565',
             role=self.client_role
         )
         self.admin_user = AuthUser.objects.create_user(
@@ -20,13 +26,23 @@ class TicketAPITestCase(APITestCase):
             role=self.admin_role
         )
 
+        # Create tickets for client_user1
         self.ticket1 = TicketManager.objects.create(
             ticketId=1,
             issue='Network Problem',
             category='IT',
             i3_priority=True,
             comments='Urgent fix needed',
-            clientId=self.client_user
+            clientId=self.client_user1
+        )
+        # Create ticket for client_user2
+        self.ticket2 = TicketManager.objects.create(
+            ticketId=2,
+            issue='Software Issue',
+            category='HR',
+            i3_priority=False,
+            comments='Payroll problem',
+            clientId=self.client_user2
         )
 
     def get_token(self, username, password):
@@ -35,17 +51,16 @@ class TicketAPITestCase(APITestCase):
             {'username': username, 'password': password}
         )
         return response.data.get('access')
-    
-    # with the corrected implementation
 
     # Test Case 1: Successful client login
     def test_client_login_success(self):
-        url = reverse('login')
-        data = {'username': 'clientOne', 'password': 'client1235'}
-
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
+        # Test both client users
+        for client in ['clientOne', 'clientTwo']:
+            url = reverse('login')
+            data = {'username': client, 'password': 'client1235' if client == 'clientOne' else 'client4565'}
+            response = self.client.post(url, data)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertIn('access', response.data)
 
     # Test Case 2: Successful admin login
     def test_admin_login_success(self):
@@ -87,13 +102,16 @@ class TicketAPITestCase(APITestCase):
 
     # Test Case 6: List tickets by category
     def test_list_tickets_by_category(self):
-        token = self.get_token('clientOne', 'client1235')
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
-        url = reverse('ticket-list') + '?category=IT'
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertEqual(len(response.data), 1)
+        # Test for both clients
+        for client in ['clientOne', 'clientTwo']:
+            token = self.get_token(client, 'client1235' if client == 'clientOne' else 'client4565')
+            self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+            url = reverse('ticket-list') + '?category=IT'
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # clientOne should see 1 ticket, clientTwo should see 0 in IT category
+            expected_count = 1 if client == 'clientOne' else 0
+            self.assertEqual(len(response.data), expected_count)
 
     # Test Case 7: List tickets with invalid category
     # def test_list_tickets_invalid_category(self):
@@ -124,12 +142,18 @@ class TicketAPITestCase(APITestCase):
 
     # Test Case 10: Delete ticket as owner
     def test_delete_ticket_owner(self):
-        token = self.get_token('clientOne', 'client1235')
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
-
-        url = reverse('ticket-delete', args=[self.ticket1.pk])
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # Test deletion for both client users
+        users_tickets = [
+        (self.client_user1, self.ticket1.pk),
+        (self.client_user2, self.ticket2.pk)
+        ]
+        
+        for user, ticket_id in users_tickets:
+            token = self.get_token(user.username, user.password)
+            self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+            url = reverse('ticket-delete', args=[ticket_id])
+            response = self.client.delete(url)
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     # Test Case 11: Delete ticket as admin (should fail)
     def test_delete_ticket_admin(self):
@@ -215,3 +239,10 @@ class TicketAPITestCase(APITestCase):
 
     #     self.assertEqual(ticket.status, 'New')
     #     self.assertEqual(ticket.i3_priority, True)
+    def test_cross_client_ticket_deletion(self):
+        # client_user1 tries to delete client_user2's ticket
+        token = self.get_token('clientOne', 'client1235')
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        url = reverse('ticket-delete', args=[self.ticket2.pk])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

@@ -22,3 +22,7 @@ def index(request):
 def detailView(request, id):
     product = Product.objects.get(id = id)
     return render(request, 'shop/details.html', {'product': product})
+
+
+def checkout(request):
+    return render(request, 'shop/checkout.html')

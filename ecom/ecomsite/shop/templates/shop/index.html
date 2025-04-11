@@ -112,7 +112,7 @@
               <h5 id="name-{{product.id}}" class="card-title">
                 {{ product.title }}
               </h5>
-              <p class="card-text fs-5">${{ product.price }}</p>
+              <p id="price-{{product.id}}" class="card-text fs-5">${{ product.price }}</p>
 
               <a href="{% url 'detail' product.id %}" , class="btn btn-warning"
                 >View</a

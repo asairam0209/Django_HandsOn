@@ -1,13 +1,23 @@
-// script.js (for product page)
+// script.js
 console.log("Testing workability");
 
 let cart = JSON.parse(localStorage.getItem('cart')) || {};
 
-// Modified Add to cart function to store product details
+// Add to cart with robust price parsing
 $(document).on('click', '.atc', function () {
     const itemId = this.id.toString();
-    const productName = document.getElementById(`name-${itemId}`).textContent;
-    const productPrice = document.getElementById(`price-${itemId}`).textContent;
+    
+    // Clean name
+    const productName = document.getElementById(`name-${itemId}`)
+                        .textContent
+                        .trim()
+                        .replace(/\s\s+/g, ' ');
+    
+    // Extract first valid number from price
+    const priceText = document.getElementById(`price-${itemId}`).textContent;
+    const productPrice = parseFloat(
+        priceText.match(/[\d]+(\.[\d]+)?/)?.[0] || '0'
+    );
 
     if (!cart[itemId]) {
         cart[itemId] = {
@@ -17,109 +27,92 @@ $(document).on('click', '.atc', function () {
         };
     }
     cart[itemId].quantity++;
+
+    console.log(cart);
     
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartDisplay();
 });
 
-// initializing the popover
+// Rest of your code remains the same except for the fixes above
 function initPopover() {
     new bootstrap.Popover(document.getElementById('cart'), {
-        html: true, placement: 'bottom', title: 'Your Cart', content: generatePopoverContent(), trigger: 'click'
+        html: true,
+        placement: 'bottom',
+        title: 'Your Cart',
+        content: generatePopoverContent(),
+        trigger: 'click'
     });
 }
 
-// generating the Popover content
 function generatePopoverContent() {
-    if (Object.keys(cart).length === 0) return 'Your cart is empty';
+    if (!Object.keys(cart).length) return 'Your cart is empty';
+
+    // Calculate total price
+    const totalPrice = Object.values(cart).reduce(
+        (sum, item) => sum + (item.price * item.quantity),
+        0
+    );
 
     return `
-        <div class="cart-items-list">
-            ${Object.entries(cart).map(([id, qty], cartIndex) => {
-        const productNameElement = document.getElementById(`name-${id}`);
-        const productName = productNameElement
-            ? productNameElement.textContent
-            : `Item ${id}`;  // Fallback if name not found
-
-
-        return `
-                    <div class="cart-item d-flex justify-content-between py-2">
-                    <span class="text-muted me-2">${cartIndex + 1}.</span>
-                        <span>${productName}</span>
-                        <span>Qty: ${qty}</span>
-
-                        
-                    </div>  
-                `;
-    }).join('')}
-            <a href="/checkout" class="btn btn-warning" id="checkout">Checkout</a>
+        <div class="cart-items-list" style="min-width: 250px">
+            ${Object.entries(cart).map(([id, item], index) => `
+                <div class="cart-item d-flex justify-content-between py-2">
+                    <span class="text-muted me-2">${index + 1}.</span>
+                    <span class="text-truncate">${item.name}</span>
+                    <div>
+                        <span class="badge bg-primary ms-2">Qty: ${item.quantity}</span>
+                    </div>
+                </div>  
+            `).join('')}
+            
+            <!-- Total Price Section -->
+            <div class="mt-3 border-top pt-2">
+                <div class="d-flex justify-content-between fw-bold">
+                    <span>Total:</span>
+                    <span>$${totalPrice.toFixed(2)}</span>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <a href="/checkout" class="btn btn-warning w-100">Checkout</a>
+            </div>
         </div>
     `;
 }
 
-//updating the popover
 function updateCartDisplay() {
     const cartButton = document.getElementById('cart');
-    const itemCount = Object.values(cart).reduce((a, b) => a + b, 0)
+    if (!cartButton) return;
 
-    // displaying the cart amount
-    cartButton.innerHTML = `Cart(${itemCount})`;
+    // Calculate item count
+    const itemCount = Object.values(cart).reduce(
+        (total, item) => total + item.quantity, 
+        0
+    );
 
-    // setting the drop down
+    // Update button
+    cartButton.innerHTML = `Cart (${itemCount})`;
+
+    // Update popover
     const popover = bootstrap.Popover.getInstance(cartButton);
     if (popover) {
         popover.setContent({
+            '.popover-header': 'Your Cart',
             '.popover-body': generatePopoverContent()
         });
+        popover.update();
     }
 }
 
-function showTheCartPage() {
-    const container = document.createElement('div');
-    container.className = 'container mt-5';
-
-    if (Object.keys(cart).length === 0) {
-        container.innerHTML = '<p>Your cart is empty</p>';
-        return;
-    }
-
-    let html = '<ul class="list-group">';
-
-    Object.entries(cart).forEach(([itemId, quantity]) => {
-        const productNameElement = document.getElementById(`name-${itemId}`);
-        const productPriceElement = document.getElementById(`price-${itemId}`);
-
-        const productName = productNameElement ? productNameElement.textContent : `Item ${itemId}`;
-        const productPrice = productPriceElement ? productPriceElement.textContent : 'Price not available';
-
-        html += `
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                ${productName}
-                <div>
-                    <span class="badge bg-primary rounded-pill me-2">Qty: ${quantity}</span>
-                    <span class="badge bg-success rounded-pill">${productPrice}</span>
-                </div>
-            </li>
-        `;
-    });
-
-    html += '</ul>';
-    container.innerHTML = html;
-
-    // Clear existing content and show cart
-    document.body.innerHTML = '';
-    document.body.appendChild(container);
-}
-
+// Initialize when ready
 document.addEventListener('DOMContentLoaded', () => {
+    // Convert legacy cart format if needed
+    if (localStorage.getItem('cart') && typeof Object.values(cart)[0] === 'number') {
+        cart = {};
+        localStorage.removeItem('cart');
+    }
+    
     initPopover();
     updateCartDisplay();
-
-    // Add event delegation for dynamically created checkout button
-    document.body.addEventListener('click', function (e) {
-        if (e.target && e.target.id === 'checkout') {
-            e.preventDefault();
-            showTheCartPage();
-        }
-    });
 });

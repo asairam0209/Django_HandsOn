@@ -25,4 +25,15 @@ def detailView(request, id):
 
 
 def checkout(request):
+
+    if request.method == "POST":
+        name = request.POST.get('name',"")   
+        email = request.POST.get('email',"") 
+        city = request.POST.get('city', "")
+        address = request.POST.get('address',"")
+        zip = request.POST.get('zip',"")
+
+
     return render(request, 'shop/checkout.html')
+
+

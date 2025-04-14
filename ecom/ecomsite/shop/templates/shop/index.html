@@ -112,13 +112,19 @@
               <h5 id="name-{{product.id}}" class="card-title">
                 {{ product.title }}
               </h5>
-              <p id="price-{{product.id}}" class="card-text fs-5">${{ product.price }}</p>
+              <p id="price-{{product.id}}" class="card-text fs-5">
+                {% if product.discount_price %}
+                    ${{ product.discount_price }}
+                {% else %}
+                    ${{ product.price }}
+                {% endif %}
+            </p>
 
               <a href="{% url 'detail' product.id %}" , class="btn btn-warning"
                 >View</a
               >
 
-              <button id="{{ product.id}}" class="btn btn-warning atc">
+              <button id="{{product.id}}" class="btn btn-warning atc">
                 Add to Cart
               </button>
             </div>
